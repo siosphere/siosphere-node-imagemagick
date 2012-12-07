@@ -1,160 +1,46 @@
-# node-imagemagick
+# siosphere-node-imagemagick
 
-[Imagemagick](http://www.imagemagick.org/) module for [Node](http://nodejs.org/).
-
-You can install this module using [npm](http://github.com/isaacs/npm):
-
-    npm install imagemagick
+Based on [node-imagemagick](http://github.com/rsms/node-imagemagick)
 
 Requires imagemagick CLI tools to be installed. There are numerous ways to install them. For instance, if you're on OS X you can use [Homebrew](http://mxcl.github.com/homebrew/): `brew install imagemagick`.
 
-## Example
+Expands upon orignal by adding a much more Object Oriented design to more closely mimic existing libraries. New functions and features will be continually added.
 
-```javascript
-var im = require('imagemagick');
-im.readMetadata('kittens.jpg', function(err, metadata){
-  if (err) throw err;
-  console.log('Shot at '+metadata.exif.dateTimeOriginal);
-})
-// -> Shot at Tue, 06 Feb 2007 21:13:54 GMT
-```
 
-## API
+# Examples
 
-### convert.path
+### Resize from Data URL
+    im = new ImageMagick();
+    //small red dot
+    im.readImageDataUrl('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==', function(image){
 
-Path to the `convert` program. Defaults to `"convert"`.
+        new_width = 10;
+        new_height = 10;
+    
+        im.resizeImage(new_width, new_height, IMAGE_MAGICK_FILTER_LANCZOS, 0, function(){
+            console.log(image.data_url); //return our new data_url, can also write the file out, get binary, etc
+        });
+    });
 
-### identify.path
+### Crop from Filepath
+    im.readImage('./blue-bottle-coffee.jpg', function(image){
+        //can read info like image width and height if we want to
+        src_width = image.width;
+        src_height = image.height;
+    
+        new_width = 100;
+        new_height = 10;
+        
+        //where to crop image from
+        var x = 0;
+        var y = 10;
+    
+        im.cropImage(new_width, new_height, x, y, function(){
+            console.log(image.data_url);
+        });
+    });
 
-Path to the `identify` program. Defaults to `"identify"`.
 
-### identify(path, callback(err, features))
-
-Identify file at `path` and return an object `features`.
-
-Example:
-
-```javascript
-im.identify('kittens.jpg', function(err, features){
-  if (err) throw err;
-  console.log(features);
-  // { format: 'JPEG', width: 3904, height: 2622, depth: 8 }
-});
-```
-
-### identify(args, callback(err, output))
-
-Custom identification where `args` is an array of arguments. The result is returned as a raw string to `output`.
-
-Example:
-
-```javascript
-im.identify(['-format', '%wx%h', 'kittens.jpg'], function(err, output){
-  if (err) throw err;
-  console.log('dimension: '+output);
-  // dimension: 3904x2622
-});
-```
-
-### readMetadata(path, callback(err, metadata))
-
-Read metadata (i.e. exif) in `path` and return an object `metadata`. Modelled on top of `identify`.
-
-Example:
-
-```javascript
-im.readMetadata('kittens.jpg', function(err, metadata){
-  if (err) throw err;
-  console.log('Shot at '+metadata.exif.dateTimeOriginal);
-  // -> Shot at Tue, 06 Feb 2007 21:13:54 GMT
-});
-```
-
-### convert(args, callback(err, stdout, stderr))
-
-Raw interface to `convert` passing arguments in the array `args`.
-
-Example:
-
-```javascript
-im.convert(['kittens.jpg', '-resize', '25x120', 'kittens-small.jpg'], 
-function(err, stdout){
-  if (err) throw err;
-  console.log('stdout:', stdout);
-});
-```
-
-### resize(options, callback(err, stdout, stderr))
-
-Convenience function for resizing an image, modelled on top of `convert`.
-
-The `options` argument have the following default values:
-
-```javascript
-{
-  srcPath: undefined,
-  srcData: null,
-  srcFormat: null,
-  dstPath: undefined,
-  quality: 0.8,
-  format: 'jpg',
-  progressive: false,
-  width: 0,
-  height: 0,
-  strip: true,
-  filter: 'Lagrange',
-  sharpening: 0.2,
-  customArgs: []
-}
-```
-
-srcPath, dstPath and (at least one of) width and height are required. The rest is optional.
-
-Example:
-
-```javascript
-im.resize({
-  srcPath: 'kittens.jpg',
-  dstPath: 'kittens-small.jpg',
-  width:   256
-}, function(err, stdout, stderr){
-  if (err) throw err;
-  console.log('resized kittens.jpg to fit within 256x256px');
-});
-```
-
-Example with stdin/stdout:
-
-```javascript
-var fs = require('fs');
-im.resize({
-  srcData: fs.readFileSync('kittens.jpg', 'binary'),
-  width:   256
-}, function(err, stdout, stderr){
-  if (err) throw err
-  fs.writeFileSync('kittens-resized.jpg', stdout, 'binary');
-  console.log('resized kittens.jpg to fit within 256x256px')
-});
-```
-
-### crop(options, callback) ###
-Convenience function for resizing and cropping an image. _crop_ uses the resize method, so _options_ and _callback_ are the same. _crop_ uses _options.srcPath_, so make sure you set it :) Using only _options.width_ or _options.height_ will create a square dimensioned image.  Gravity can also be specified, it defaults to Center.   Available gravity options are [NorthWest, North, NorthEast, West, Center, East, SouthWest, South, SouthEast]
-
-Example:
-
-```javascript
-im.crop({
-  srcPath: path,
-  dstPath: 'cropped.jpg',
-  width: 800,
-  height: 600,
-  quality: 1,
-  gravity: "North"
-}, function(err, stdout, stderr){
-  // foo
-});
-```
 
 ## License (MIT)
 
