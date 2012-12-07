@@ -322,7 +322,7 @@ exports.crop = function (options, callback) {
         args = args.concat([
           '-resize', resizeTo,
           '-gravity', dGravity,
-          '-crop', ''+t.opt.width + 'x' + t.opt.height + '+0+0',
+          '-crop', ''+t.opt.width + 'x' + t.opt.height + '+'+t.opt.x+'+'+t.opt.y,
           '+repage'
         ]);
         ignoreArg = false;
@@ -350,7 +350,9 @@ exports.resizeArgs = function(options) {
     filter: 'Lagrange',
     sharpening: 0.2,
     customArgs: [],
-    timeout: 0
+    timeout: 0,
+    x: 0,
+    y: 0
   }
 
   // check options
